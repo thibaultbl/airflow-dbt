@@ -1,5 +1,6 @@
 from airflow.decorators import dag
 from airflow.operators.bash import BashOperator
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from datetime import datetime
 
 #Define default arguments
@@ -23,8 +24,12 @@ def dbt_run():
         task_id="run_dbt_op", bash_command="cd /opt/airflow/dags/dbt/test_project && dbt run"
     )
 
+    opr_call_sproc2 = SQLExecuteQueryOperator(
+        task_id="call_sproc2", conn_id="postgres", sql="select * from dbt_project.pet_model"
+    )
 
-    opr_call_sproc1
+
+    opr_call_sproc1 >> opr_call_sproc2
 
 
 dbt_run()
